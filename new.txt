@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Table Generator</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <input id="input1" type="text" placeholder="Enter dimensions like 3#3#3">
+    <input id="input2" type="text" placeholder="Enter dimensions like 3#3#2">
+    <button onclick="generateTables()">Generate Tables</button>
+    <div id="table1"></div>
+    <div id="table2"></div>
+    <div id="resultTable"></div>
+
+    <script>
+        function generateTables() {
+            const input1 = document.getElementById('input1').value.split('#').map(Number);
+            const input2 = document.getElementById('input2').value.split('#').map(Number);
+
+            // Validate input
+            if (input1.length !== 3 || input2.length !== 3) {
+                alert('Invalid input. Please enter in the format rows#columns#start');
+                return;
+            }
+
+            const [rows1, cols1, start1] = input1;
+            const [rows2, cols2, start2] = input2;
+
+            // Generate the first and second tables
+            const table1 = createTable(rows1, cols1, start1);
+            const table2 = createTable(rows2, cols2, start2);
+
+            // Display tables
+            document.getElementById('table1').innerHTML = table1;
+            document.getElementById('table2').innerHTML = table2;
+
+            // Check for third table creation condition
+            if (rows1 === cols2 && cols1 === rows2) {
+                createAndDisplayResultTable(rows1, cols1, start1, start2);
+            }
+        }
+
+        function createTable(rows, cols, start) {
+            let tableHTML = '<table>';
+            let number = start;
+            for (let r = 0; r < rows; r++) {
+                tableHTML += '<tr>';
+                for (let c = 0; c < cols; c++) {
+                    tableHTML += `<td>${number}</td>`;
+                    number++;  // Increment for the next cell
+                }
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</table>';
+            return tableHTML;
+        }
+
+        function createAndDisplayResultTable(rows, cols, start1, start2) {
+            let tableHTML = '<table>';
+            let colorMap = new Map();
+            let colorIndex = 0;
+
+            // Create result table dynamically based on the condition
+            for (let r = 0; r < rows; r++) {
+                tableHTML += '<tr>';
+                for (let c = 0; c < cols; c++) {
+                    let val1 = start1 + r + c * rows;  // As the first table is filled vertically
+                    let val2 = start2 + r + c * rows;  // As the second table is filled vertically
+
+                    let resultValue = (val1 === val2) ? val1 : val1 * val2;
+                    let color = colorMap.get(resultValue);
+
+                    if (!color) {
+                        color = `hsl(${360 * Math.random()}, 100%, 75%)`;
+                        colorMap.set(resultValue, color);
+                    }
+
+                    tableHTML += `<td style="background-color: ${color};">${resultValue}</td>`;
+                }
+                tableHTML += '</tr>';
+            }
+
+            tableHTML += '</table>';
+            document.getElementById('resultTable').innerHTML = tableHTML;
+        }
+    </script>
+</body>
+</html>
